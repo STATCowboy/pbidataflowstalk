@@ -63,6 +63,7 @@ datalake_service = DataLakeServiceClient(
 filesystem_client = datalake_service.get_file_system_client(Credentials.dataflowContainer)
 
 # Read CDM Model definition from model.json file for CDM folder
+# Location is '<Workspace>/<Dataflow Name>/model.json'
 cdm_model_file = 'Ames Housing/Housing Data/model.json'
 cdm_model_json = getADLSfile(filesystem_client, cdm_model_file).decode('utf-8')
 
@@ -88,18 +89,18 @@ types = dict([(attribute.name, type_conveter(attribute.dataType.value)) for attr
 buff = BytesIO(csv_bytes)
 housingDF = pd.read_csv(buff, names=names, dtype=types, na_filter = False)
 buff.close()
-housingDF[['Lot Area', 'SalePrice']]
+housingDF[['Gr Liv Area', 'SalePrice']]
 
 # Let's do Data Science
 
 # split the values into two series instead a list of tuples
-X = housingDF['Lot Area'].values.reshape(-1,1)
+X = housingDF['Gr Liv Area'].values.reshape(-1,1)
 y = housingDF['SalePrice'].values.reshape(-1,1)
 
 # Do some EDA plots on X and Y variables
 plt.figure(figsize=(15,10))
 plt.tight_layout()
-plt.title("Lot Area")
+plt.title("Gr Liv Area")
 seabornInstance.distplot(X)
 plt.show()
 
@@ -109,12 +110,12 @@ plt.title("Sale Price")
 seabornInstance.distplot(y)
 plt.show()
 
-# Log Transform the X (Lot Area) as it is right skewed (see plot)
+# Log Transform the X (Gr Liv Area) as it is right skewed (see plot)
 X = np.log(X)
 
 plt.figure(figsize=(15,10))
 plt.tight_layout()
-plt.title("Lot Area [Log Transformed]")
+plt.title("Gr Liv Area [Log Transformed]")
 seabornInstance.distplot(X)
 plt.show()
 
@@ -140,7 +141,7 @@ regr.fit(X_train, y_train)
 # Check that the coeffients 
 m = np.exp(regr.coef_[0])
 b = regr.intercept_
-print(' y = {0} + x * {1}'.format(m, b))
+print(' y = {0} + x * {1}'.format(b, m))
 
 # Make predictions using the testing set
 y_pred = regr.predict(X_test)
